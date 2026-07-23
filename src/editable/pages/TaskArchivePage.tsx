@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, BriefcaseBusiness, ChevronDown, Download, FileText, Globe, MapPin, Phone, Search, Star, UserRound } from 'lucide-react'
+import { ArrowUpRight, Building2, ChevronDown, Download, FileText, Globe, MapPin, Phone, Search, Star, UserRound } from 'lucide-react'
 import { buildTaskMetadata } from '@/lib/seo'
 import { CATEGORY_OPTIONS, normalizeCategory } from '@/lib/categories'
 import { fetchPaginatedTaskPosts, buildPostUrl } from '@/lib/task-data'
@@ -60,6 +60,8 @@ const getField = (post: SitePost, keys: string[]) => {
   return ''
 }
 const cleanDomain = (value: string) => value.replace(/^https?:\/\//, '').replace(/\/$/, '')
+const labelMap: Partial<Record<TaskKey, string>> = { listing: 'Places', pdf: 'Guides & Reports' }
+const displayLabel = (task: TaskKey, fallback: string) => labelMap[task] || fallback
 
 function pageHref(basePath: string, category: string, page: number) {
   const params = new URLSearchParams()
@@ -104,7 +106,7 @@ export function TaskArchiveView({ task, posts, pagination, category, basePath }:
   const voice = taskPageVoices[task]
   const theme = getTaskTheme(task)
   const page = pagination.page || 1
-  const label = taskConfig?.label || task
+  const label = displayLabel(task, taskConfig?.label || task)
   const categoryLabel = category === 'all' ? 'All categories' : CATEGORY_OPTIONS.find((item) => item.slug === category)?.name || category
 
   return (
@@ -185,7 +187,7 @@ function ArchivePostCard({ post, task, basePath, index }: { post: SitePost; task
   if (task === 'classified') return <ClassifiedArchiveCard post={post} href={href} />
   if (task === 'image') return <ImageArchiveCard post={post} href={href} index={index} />
   if (task === 'sbm') return <BookmarkArchiveCard post={post} href={href} index={index} />
-  if (task === 'pdf') return <PdfArchiveCard post={post} href={href} />
+  if (task === 'pdf') return <GuideArchiveCard post={post} href={href} />
   if (task === 'profile') return <ProfileArchiveCard post={post} href={href} />
   return <ArticleArchiveCard post={post} href={href} index={index} />
 }
@@ -263,7 +265,7 @@ function ListingArchiveCard({ post, href }: { post: SitePost; href: string }) {
   return (
     <Link href={href} className={`${cardBase} flex items-center gap-5 p-5 sm:p-6`}>
       <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[1rem] border border-[var(--tk-line)] bg-[var(--tk-raised)]">
-        {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <BriefcaseBusiness className="h-9 w-9 text-[var(--tk-muted)]" />}
+        {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <Building2 className="h-9 w-9 text-[var(--tk-muted)]" />}
       </div>
       <div className="min-w-0 flex-1">
         <h2 className="editable-display truncate text-xl font-semibold tracking-[-0.02em]">{post.title}</h2>
@@ -334,8 +336,8 @@ function BookmarkArchiveCard({ post, href, index }: { post: SitePost; href: stri
   )
 }
 
-function PdfArchiveCard({ post, href }: { post: SitePost; href: string }) {
-  const category = getCategory(post, 'Document')
+function GuideArchiveCard({ post, href }: { post: SitePost; href: string }) {
+  const category = getCategory(post, 'Reference')
   return (
     <Link href={href} className={`${cardBase} flex flex-col p-6 sm:p-7`}>
       <div className="flex items-start justify-between gap-4">
@@ -345,7 +347,7 @@ function PdfArchiveCard({ post, href }: { post: SitePost; href: string }) {
       <h2 className="editable-display mt-6 text-xl font-semibold leading-snug tracking-[-0.02em]">{post.title}</h2>
       <RatingLine post={post} />
       <p className="mt-3 line-clamp-3 flex-1 text-sm leading-7 text-[var(--tk-muted)]">{getSummary(post)}</p>
-      <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--tk-accent)]">Open document <Download className="h-4 w-4" /></span>
+      <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--tk-accent)]">Open guide <Download className="h-4 w-4" /></span>
     </Link>
   )
 }
